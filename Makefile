@@ -6,7 +6,7 @@
 #    By: achowdhu <achowdhu@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/08/17 16:13:38 by achowdhu          #+#    #+#              #
-#    Updated: 2025/08/19 13:13:02 by achowdhu         ###   ########.fr        #
+#    Updated: 2025/09/22 13:48:37 by achowdhu         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -27,7 +27,7 @@ OBJ_DIR     := obj
 INC_DIR     := inc
 
 # Source and Object Files
-SRCS        := main.c init.c philo.c monitor.c utils.c
+SRCS        := philo.c init.c actions.c routine.c utils.c
 OBJS        := $(addprefix $(OBJ_DIR)/,$(SRCS:.c=.o))
 
 # Includes

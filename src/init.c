@@ -5,34 +5,39 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: achowdhu <achowdhu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/19 12:11:47 by achowdhu          #+#    #+#             */
-/*   Updated: 2025/08/19 16:31:07 by achowdhu         ###   ########.fr       */
+/*   Created: 2025/09/22 13:47:24 by achowdhu          #+#    #+#             */
+/*   Updated: 2025/09/22 13:48:27 by achowdhu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-int	init_data(t_data *data, int ac, char **av)
+int	parse_args(t_data *data, int ac, char **av)
 {
 	data->n_philos = ft_atoi(av[1]);
-	data->time_to_die = ft_atoi(av[2]);
-	data->time_to_eat = ft_atoi(av[3]);
-	data->time_to_sleep = ft_atoi(av[4]);
+	data->t_die = ft_atoi(av[2]);
+	data->t_eat = ft_atoi(av[3]);
+	data->t_sleep = ft_atoi(av[4]);
+	data->n_meals = -1;
 	if (ac == 6)
 		data->n_meals = ft_atoi(av[5]);
-	else
-		data->n_meals = -1;
-	data->someone_died = 0;
-	data->forks = malloc(sizeof(pthread_mutex_t) * data->n_philos);
-	if (!data->forks)
+	if (data->n_philos <= 0 || data->t_die <= 0 || data->t_eat <= 0
+		|| data->t_sleep <= 0 || (ac == 6 && data->n_meals <= 0))
 		return (1);
+	data->someone_died = 0;
+	data->all_ate = 0;
+	data->start_time = get_time();
 	return (0);
 }
 
-void	init_mutexes(t_data *data)
+int	init_mutexes(t_data *data)
 {
 	int	i;
 
+	data->forks = malloc(sizeof(pthread_mutex_t) * data->n_philos);
+	data->philos = malloc(sizeof(t_philo) * data->n_philos);
+	if (!data->forks || !data->philos)
+		return (1);
 	i = 0;
 	while (i < data->n_philos)
 	{
@@ -41,23 +46,34 @@ void	init_mutexes(t_data *data)
 	}
 	pthread_mutex_init(&data->print_mutex, NULL);
 	pthread_mutex_init(&data->death_mutex, NULL);
+	pthread_mutex_init(&data->meal_check_mutex, NULL);
+	return (0);
 }
 
-void	init_philosophers(t_philo *philos, t_data *data)
+int	init_data(t_data *data, int ac, char **av)
+{
+	if (parse_args(data, ac, av))
+		return (1);
+	if (init_mutexes(data))
+		return (1);
+	return (0);
+}
+
+int	init_philos(t_data *data)
 {
 	int	i;
 
 	i = 0;
 	while (i < data->n_philos)
 	{
-		philos[i].id = i + 1;
-		philos[i].meals_eaten = 0;
-		philos[i].last_meal_time = current_timestamp();
-		philos[i].left_fork = &data->forks[i];
-		philos[i].right_fork = &data->forks[(i + 1) % data->n_philos];
-		philos[i].data = data;
-		pthread_create(&philos[i].thread, NULL,
-			philosopher_routine, &philos[i]);
+		data->philos[i].id = i + 1;
+		data->philos[i].meals_eaten = 0;
+		data->philos[i].last_meal = data->start_time;
+		data->philos[i].left_fork = &data->forks[i];
+		data->philos[i].right_fork = &data->forks[(i + 1) % data->n_philos];
+		data->philos[i].data = data;
+		pthread_mutex_init(&data->philos[i].meal_mutex, NULL);
 		i++;
 	}
+	return (0);
 }

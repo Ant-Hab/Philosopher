@@ -6,92 +6,54 @@
 /*   By: achowdhu <achowdhu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 16:07:16 by achowdhu          #+#    #+#             */
-/*   Updated: 2025/08/19 16:31:13 by achowdhu         ###   ########.fr       */
+/*   Updated: 2025/09/22 13:58:44 by achowdhu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-t_philo	*create_philos(t_data *data)
+static int	start_simulation(t_data *data)
 {
-	t_philo	*philos;
+	int	i;
 
-	philos = malloc(sizeof(t_philo) * data->n_philos);
-	if (!philos)
-		return (NULL);
-	return (philos);
+	i = 0;
+	while (i < data->n_philos)
+	{
+		if (pthread_create(&data->philos[i].thread, NULL, routine,
+				&data->philos[i]) != 0)
+			return (1);
+		i++;
+	}
+	if (pthread_create(&data->monitor, NULL, monitor_routine, data) != 0)
+		return (1);
+	i = 0;
+	while (i < data->n_philos)
+	{
+		pthread_join(data->philos[i].thread, NULL);
+		i++;
+	}
+	pthread_join(data->monitor, NULL);
+	return (0);
 }
 
-void	print_action(t_philo *philo, char *action)
+int	main(int ac, char **av)
 {
-	pthread_mutex_lock(&philo->data->print_mutex);
-	pthread_mutex_lock(&philo->data->death_mutex);
-	if (!philo->data->someone_died)
-		printf("%lld %d %s\n", current_timestamp(), philo->id, action);
-	pthread_mutex_unlock(&philo->data->death_mutex);
-	pthread_mutex_unlock(&philo->data->print_mutex);
-}
+	t_data	data;
 
-static void	take_forks(t_philo *philo)
-{
-	if (philo->id % 2 == 0)
+	if (ac != 5 && ac != 6)
+		return (printf("Error: wrong arguments\n"), 1);
+	if (init_data(&data, ac, av) || init_philos(&data))
+		return (printf("Error: init failed\n"), 1);
+	if (data.n_philos == 1)
 	{
-		pthread_mutex_lock(philo->right_fork);
-		print_action(philo, "has taken a fork");
-		pthread_mutex_lock(philo->left_fork);
-		print_action(philo, "has taken a fork");
+		printf("%lld 1 has taken a fork\n",
+			get_time() - data.start_time);
+		usleep(data.t_die * 1000);
+		printf("%lld 1 died\n", get_time() - data.start_time);
+		free_data(&data);
+		return (0);
 	}
-	else
-	{
-		usleep(1500);
-		pthread_mutex_lock(philo->left_fork);
-		print_action(philo, "has taken a fork");
-		pthread_mutex_lock(philo->right_fork);
-		print_action(philo, "has taken a fork");
-	}
-}
-
-static void	eat_sleep_think(t_philo *philo)
-{
-	pthread_mutex_lock(&philo->data->death_mutex);
-	philo->last_meal_time = current_timestamp();
-	pthread_mutex_unlock(&philo->data->death_mutex);
-	print_action(philo, "is eating");
-	ft_usleep(philo->data->time_to_eat);
-	pthread_mutex_lock(&philo->data->death_mutex);
-	philo->meals_eaten++;
-	pthread_mutex_unlock(&philo->data->death_mutex);
-	pthread_mutex_unlock(philo->left_fork);
-	pthread_mutex_unlock(philo->right_fork);
-	print_action(philo, "is sleeping");
-	ft_usleep(philo->data->time_to_sleep);
-	print_action(philo, "is thinking");
-}
-
-void	*philosopher_routine(void *arg)
-{
-	t_philo	*philo;
-
-	philo = (t_philo *)arg;
-	if (philo->id % 2)
-		usleep(1500);
-	if (philo->data->n_philos == 1)
-	{
-		print_action(philo, "has taken a fork");
-		ft_usleep(philo->data->time_to_die);
-		return (NULL);
-	}
-	while (1)
-	{
-		pthread_mutex_lock(&philo->data->death_mutex);
-		if (philo->data->someone_died)
-		{
-			pthread_mutex_unlock(&philo->data->death_mutex);
-			break ;
-		}
-		pthread_mutex_unlock(&philo->data->death_mutex);
-		take_forks(philo);
-		eat_sleep_think(philo);
-	}
-	return (NULL);
+	start_simulation(&data);
+	free_data(&data);
+	return (0);
 }

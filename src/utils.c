@@ -6,18 +6,27 @@
 /*   By: achowdhu <achowdhu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/17 16:07:20 by achowdhu          #+#    #+#             */
-/*   Updated: 2025/08/19 16:31:15 by achowdhu         ###   ########.fr       */
+/*   Updated: 2025/09/22 13:54:56 by achowdhu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-long long	current_timestamp(void)
+int	ft_atoi(const char *str)
 {
-	struct timeval	tv;
+	long	res;
+	int		sign;
 
-	gettimeofday(&tv, NULL);
-	return ((tv.tv_sec * 1000LL) + (tv.tv_usec / 1000));
+	res = 0;
+	sign = 1;
+	while ((*str >= 9 && *str <= 13) || *str == ' ')
+		str++;
+	if (*str == '+' || *str == '-')
+		if (*str++ == '-')
+			sign = -1;
+	while (*str >= '0' && *str <= '9')
+		res = res * 10 + (*str++ - '0');
+	return ((int)(res * sign));
 }
 
 long long	get_time(void)
@@ -25,61 +34,48 @@ long long	get_time(void)
 	struct timeval	tv;
 
 	gettimeofday(&tv, NULL);
-	return ((tv.tv_sec * 1000LL) + (tv.tv_usec / 1000));
+	return ((tv.tv_sec * 1000) + (tv.tv_usec / 1000));
 }
 
-void	ft_usleep(long time_in_ms)
+void	smart_sleep(long long ms, t_data *data)
 {
 	long long	start;
-	long long	current;
 
 	start = get_time();
-	while (1)
+	while (get_time() - start < ms)
 	{
-		current = get_time();
-		if ((current - start) >= time_in_ms)
-			break ;
 		usleep(100);
+		pthread_mutex_lock(&data->death_mutex);
+		if (data->someone_died)
+		{
+			pthread_mutex_unlock(&data->death_mutex);
+			break ;
+		}
+		pthread_mutex_unlock(&data->death_mutex);
 	}
 }
 
-int	ft_atoi(const char *str)
+void	update_last_meal(t_philo *ph)
 {
-	int	i;
-	int	res;
-
-	i = 0;
-	res = 0;
-	if (!str[i])
-		return (0);
-	while (str[i] >= '0' && str[i] <= '9')
-	{
-		res = res * 10 + (str[i] - '0');
-		i++;
-	}
-	if (str[i] != '\0')
-		return (-1);
-	return (res);
+	pthread_mutex_lock(&ph->meal_mutex);
+	ph->last_meal = get_time();
+	pthread_mutex_unlock(&ph->meal_mutex);
 }
 
-void	join_and_cleanup(t_philo *philos, t_data *data)
+void	free_data(t_data *data)
 {
 	int	i;
 
-	i = 0;
-	while (i < data->n_philos)
-	{
-		pthread_join(philos[i].thread, NULL);
-		i++;
-	}
 	i = 0;
 	while (i < data->n_philos)
 	{
 		pthread_mutex_destroy(&data->forks[i]);
+		pthread_mutex_destroy(&data->philos[i].meal_mutex);
 		i++;
 	}
 	pthread_mutex_destroy(&data->print_mutex);
 	pthread_mutex_destroy(&data->death_mutex);
+	pthread_mutex_destroy(&data->meal_check_mutex);
 	free(data->forks);
-	free(philos);
+	free(data->philos);
 }
