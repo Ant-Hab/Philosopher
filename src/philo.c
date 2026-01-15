@@ -3,50 +3,57 @@
 /*                                                        :::      ::::::::   */
 /*   philo.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: achowdhu <achowdhu@student.42.fr>          +#+  +:+       +#+        */
+/*   By: achowdhu <achowdhu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/17 16:07:16 by achowdhu          #+#    #+#             */
-/*   Updated: 2025/09/22 18:32:04 by achowdhu         ###   ########.fr       */
+/*   Created: 2026/01/15 21:30:34 by achowdhu          #+#    #+#             */
+/*   Updated: 2026/01/15 22:21:47 by achowdhu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-static void	cleanup_on_error(t_data *data, int created_threads)
+static void	handle_one_philo(t_data *data)
 {
-	int	i;
-
-	i = 0;
-	while (i < data->n_philos && i < created_threads)
-		pthread_detach(data->philos[i].thread);
-	free_data(data);
+	data->start_time = get_time();
+	printf("0 1 has taken a fork\n");
+	usleep(data->t_die * 1000);
+	printf("%lld 1 died\n", get_time() - data->start_time);
 }
 
-static int	start_simulation(t_data *data)
+static int	create_threads(t_data *data)
 {
 	int	i;
 
 	i = 0;
 	while (i < data->n_philos)
 	{
-		if (pthread_create(&data->philos[i].thread, NULL, routine,
-				&data->philos[i]) != 0)
-		{
-			cleanup_on_error(data, i);
+		if (pthread_create(&data->philos[i].thread, NULL,
+				routine, &data->philos[i]))
 			return (1);
-		}
 		i++;
 	}
-	if (pthread_create(&data->monitor, NULL, monitor_routine, data) != 0)
+	data->start_time = get_time();
+	i = 0;
+	while (i < data->n_philos)
 	{
-		cleanup_on_error(data, i);
-		return (1);
+		pthread_mutex_lock(&data->philos[i].meal_mutex);
+		data->philos[i].last_meal = data->start_time;
+		pthread_mutex_unlock(&data->philos[i].meal_mutex);
+		i++;
 	}
+	if (pthread_create(&data->monitor, NULL, monitor_routine, data))
+		return (1);
+	return (0);
+}
+
+static void	join_threads(t_data *data)
+{
+	int	i;
+
 	i = 0;
 	while (i < data->n_philos)
 		pthread_join(data->philos[i++].thread, NULL);
 	pthread_join(data->monitor, NULL);
-	return (0);
 }
 
 int	main(int ac, char **av)
@@ -58,14 +65,16 @@ int	main(int ac, char **av)
 	if (init_data(&data, ac, av) || init_philos(&data))
 		return (printf("Error: init failed\n"), 1);
 	if (data.n_philos == 1)
+		handle_one_philo(&data);
+	else
 	{
-		printf("%lld 1 has taken a fork\n", get_time() - data.start_time);
-		usleep(data.t_die * 1000);
-		printf("%lld 1 died\n", get_time() - data.start_time);
-		free_data(&data);
-		return (0);
+		if (create_threads(&data))
+		{
+			free_data(&data);
+			return (printf("Error: thread creation failed\n"), 1);
+		}
+		join_threads(&data);
 	}
-	start_simulation(&data);
 	free_data(&data);
 	return (0);
 }
