@@ -6,7 +6,7 @@
 /*   By: achowdhu <achowdhu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/15 21:30:14 by achowdhu          #+#    #+#             */
-/*   Updated: 2026/01/15 22:21:16 by achowdhu         ###   ########.fr       */
+/*   Updated: 2026/02/04 17:31:18 by achowdhu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,22 +49,22 @@ struct s_data
 	pthread_t		monitor;
 };
 
-int			parse_args(t_data *data, int ac, char **av);
-int			init_mutexes(t_data *data);
+/* Init & Parse */
 int			init_data(t_data *data, int ac, char **av);
 int			init_philos(t_data *data);
 
+/* Utils */
 int			ft_atoi(const char *str);
 long long	get_time(void);
 void		smart_sleep(long long ms, t_data *data);
 void		free_data(t_data *data);
 
+/* Actions */
 void		print_action(t_philo *ph, char *msg);
 int			philo_eat(t_philo *ph);
-void		philo_rest(t_philo *ph, char *action, long long duration);
+void		philo_think(t_philo *ph);
 
-int			check_philo_death(t_data *data, int i);
-int			check_all_ate(t_data *data);
+/* Routines */
 void		*monitor_routine(void *arg);
 void		*routine(void *arg);
 

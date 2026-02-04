@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: achowdhu <achowdhu@student.42.fr>          +#+  +:+       +#+         #
+#    By: achowdhu <achowdhu@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2025/08/17 16:13:38 by achowdhu          #+#    #+#              #
-#    Updated: 2025/09/22 13:48:37 by achowdhu         ###   ########.fr        #
+#    Created: 2026/02/04 16:05:32 by achowdhu          #+#    #+#              #
+#    Updated: 2026/02/04 16:05:37 by achowdhu         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 

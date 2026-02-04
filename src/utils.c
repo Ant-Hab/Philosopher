@@ -6,7 +6,7 @@
 /*   By: achowdhu <achowdhu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/15 21:31:49 by achowdhu          #+#    #+#             */
-/*   Updated: 2026/01/15 22:22:10 by achowdhu         ###   ########.fr       */
+/*   Updated: 2026/02/04 16:19:28 by achowdhu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,16 +47,16 @@ void	smart_sleep(long long ms, t_data *data)
 	long long	start;
 
 	start = get_time();
-	while ((get_time() - start) < ms)
+	while (get_time() - start < ms)
 	{
 		pthread_mutex_lock(&data->death_mutex);
 		if (data->someone_died)
 		{
 			pthread_mutex_unlock(&data->death_mutex);
-			break ;
+			return ;
 		}
 		pthread_mutex_unlock(&data->death_mutex);
-		usleep(500);
+		usleep(200);
 	}
 }
 
@@ -64,22 +64,23 @@ void	free_data(t_data *data)
 {
 	int	i;
 
+	if (!data)
+		return ;
 	if (data->forks)
 	{
 		i = 0;
 		while (i < data->n_philos)
 			pthread_mutex_destroy(&data->forks[i++]);
 		free(data->forks);
+		data->forks = NULL;
 	}
 	if (data->philos)
 	{
 		i = 0;
 		while (i < data->n_philos)
-		{
-			pthread_mutex_destroy(&data->philos[i].meal_mutex);
-			i++;
-		}
+			pthread_mutex_destroy(&data->philos[i++].meal_mutex);
 		free(data->philos);
+		data->philos = NULL;
 	}
 	pthread_mutex_destroy(&data->print_mutex);
 	pthread_mutex_destroy(&data->death_mutex);
