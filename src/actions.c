@@ -6,7 +6,7 @@
 /*   By: achowdhu <achowdhu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/15 21:33:03 by achowdhu          #+#    #+#             */
-/*   Updated: 2026/02/04 17:41:02 by achowdhu         ###   ########.fr       */
+/*   Updated: 2026/02/09 11:52:51 by achowdhu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,17 +14,15 @@
 
 void	print_action(t_philo *ph, char *msg)
 {
-	long long	now;
-
 	pthread_mutex_lock(&ph->data->death_mutex);
 	if (ph->data->someone_died)
 	{
 		pthread_mutex_unlock(&ph->data->death_mutex);
 		return ;
 	}
-	now = get_time() - ph->data->start_time;
 	pthread_mutex_lock(&ph->data->print_mutex);
-	printf("%lld %d %s\n", now, ph->id, msg);
+	printf("%lld %d %s\n", get_time() - ph->data->start_time,
+		ph->id, msg);
 	pthread_mutex_unlock(&ph->data->print_mutex);
 	pthread_mutex_unlock(&ph->data->death_mutex);
 }

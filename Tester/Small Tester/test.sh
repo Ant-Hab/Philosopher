@@ -163,11 +163,7 @@ run_full()
 		exit
 	}
 	' .julesphilo2log)
-	if grep -q " died" .julestestout; then
-		result=$(grep -q " died" .julestestout)
-		echo -n "❌"
-		echo -e "$test_desc: Philosopher died\n\t$result\n" >> philo_trace
-	elif [[ ! $eat_time1 =~ ^[0-9]+$ ]] || [[ ! $eat_time2 =~ ^[0-9]+$ ]] || [[ ! $sleep_time1 =~ ^[0-9]+$ ]] || [[ ! $sleep_time2 =~ ^[0-9]+$ ]] || [[ ! $think_time1 =~ ^[0-9]+$ ]] || [[ ! $think_time2 =~ ^[0-9]+$ ]]; then
+	if [[ ! $eat_time1 =~ ^[0-9]+$ ]] || [[ ! $eat_time2 =~ ^[0-9]+$ ]] || [[ ! $sleep_time1 =~ ^[0-9]+$ ]] || [[ ! $sleep_time2 =~ ^[0-9]+$ ]] || [[ ! $think_time1 =~ ^[0-9]+$ ]] || [[ ! $think_time2 =~ ^[0-9]+$ ]]; then
 		echo -n "❌"
 		echo -e "$test_desc: Timestamp error: Non numerical\n\tPhilo 1 eating timestamp: $eat_time1 Philo 1 sleep timestamp: $sleep_time1 Philo 1 think timestamp: $think_time1 Philo 2 eating timestamp: $eat_time2 Philo 2 sleep timestamp: $sleep_time2 Philo 2 think timestamp: $think_time2\n" >> philo_trace
 	elif [[ ! $philo =~ ^[0-9]+$ ]] || [[ ! $time_eat =~ ^[0-9]+$ ]] || [[ ! $time_sleep =~ ^[0-9]+$ ]] || [[ ! $eat =~ ^[0-9]+$ ]]; then
@@ -176,6 +172,10 @@ run_full()
 	elif [[ ! $forks =~ ^[0-9]+$ ]]; then
 		echo -n "❌"
 		echo -e "$test_desc: Calculation error: Non numerical\n\tNo of forks collected: $forks\n" >> philo_trace
+	elif grep -q " died" .julestestout; then
+		result=$(grep -q " died" .julestestout)
+		echo -n "❌"
+		echo -e "$test_desc: Philosopher died\n\t$result\n" >> philo_trace
 	elif [ "$(grep "is eating" .julestestout | wc -l)" -lt $((eat * philo)) ]; then
 		result=$(grep -c "is eating" .julestestout)
 		echo -n "❌"
@@ -292,14 +292,7 @@ trap "rm -rf .julesdeathlog .julesone .julesphilo1log .julesphilo2log .julesstde
 
 echo -e "
 ${PURPLE}#################################################################################################################${RESET}
-${PURPLE}#${RESET}.${WHITE}########${RESET}..${WHITE}##${RESET}.....${WHITE}##${RESET}.${WHITE}####${RESET}.${WHITE}##${RESET}........${WHITE}#######${RESET}...${WHITE}######${RESET}...${WHITE}#######${RESET}..${WHITE}########${RESET}..${WHITE}##${RESET}.....${WHITE}##${RESET}.${WHITE}########${RESET}.${WHITE}########${RESET}...${WHITE}######${RESET}.${WHITE}${PURPLE}#${RESET}
-${PURPLE}#${RESET}.${WHITE}##${RESET}.....${WHITE}##${RESET}.${WHITE}##${RESET}.....${WHITE}##${RESET}..${WHITE}##${RESET}..${WHITE}##${RESET}.......${WHITE}##${RESET}.....${WHITE}##${RESET}.${WHITE}##${RESET}....${WHITE}##${RESET}.${WHITE}##${RESET}.....${WHITE}##${RESET}.${WHITE}##${RESET}.....${WHITE}##${RESET}.${WHITE}##${RESET}.....${WHITE}##${RESET}.${WHITE}##${RESET}.......${WHITE}##${RESET}.....${WHITE}##${RESET}.${WHITE}##${RESET}....${WHITE}##${PURPLE}#${RESET}
-${PURPLE}#${RESET}.${WHITE}##${RESET}.....${WHITE}##${RESET}.${WHITE}##${RESET}.....${WHITE}##${RESET}..${WHITE}##${RESET}..${WHITE}##${RESET}.......${WHITE}##${RESET}.....${WHITE}##${RESET}.${WHITE}##${RESET}.......${WHITE}##${RESET}.....${WHITE}##${RESET}.${WHITE}##${RESET}.....${WHITE}##${RESET}.${WHITE}##${RESET}.....${WHITE}##${RESET}.${WHITE}##${RESET}.......${WHITE}##${RESET}.....${WHITE}##${RESET}.${WHITE}##${RESET}......${PURPLE}#${RESET}
-${PURPLE}#${RESET}.${WHITE}########${RESET}..${WHITE}#########${RESET}..${WHITE}##${RESET}..${WHITE}##${RESET}.......${WHITE}##${RESET}.....${WHITE}##${RESET}..${WHITE}######${RESET}..${WHITE}##${RESET}.....${WHITE}##${RESET}.${WHITE}########${RESET}..${WHITE}#########${RESET}.${WHITE}######${RESET}...${WHITE}########${RESET}...${WHITE}######${RESET}.${PURPLE}#${RESET}
-${PURPLE}#${RESET}.${WHITE}##${RESET}........${WHITE}##${RESET}.....${WHITE}##${RESET}..${WHITE}##${RESET}..${WHITE}##${RESET}.......${WHITE}##${RESET}.....${WHITE}##${RESET}.......${WHITE}##${RESET}.${WHITE}##${RESET}.....${WHITE}##${RESET}.${WHITE}##${RESET}........${WHITE}##${RESET}.....${WHITE}##${RESET}.${WHITE}##${RESET}.......${WHITE}##${RESET}...${WHITE}##${RESET}.........${WHITE}##${PURPLE}#${RESET}
-${PURPLE}#${RESET}.${WHITE}##${RESET}........${WHITE}##${RESET}.....${WHITE}##${RESET}..${WHITE}##${RESET}..${WHITE}##${RESET}.......${WHITE}##${RESET}.....${WHITE}##${RESET}.${WHITE}##${RESET}....${WHITE}##${RESET}.${WHITE}##${RESET}.....${WHITE}##${RESET}.${WHITE}##${RESET}........${WHITE}##${RESET}.....${WHITE}##${RESET}.${WHITE}##${RESET}.......${WHITE}##${RESET}....${WHITE}##${RESET}..${WHITE}##${RESET}....${WHITE}##${PURPLE}#${RESET}
-${PURPLE}#${RESET}.${WHITE}##${RESET}........${WHITE}##${RESET}.....${WHITE}##${RESET}.${WHITE}####${RESET}.${WHITE}########${RESET}..${WHITE}#######${RESET}...${WHITE}######${RESET}...${WHITE}#######${RESET}..${WHITE}##${RESET}........${WHITE}##${RESET}.....${WHITE}##${RESET}.${WHITE}########${RESET}.${WHITE}##${RESET}.....${WHITE}##${RESET}..${WHITE}######${RESET}.${PURPLE}#${RESET}
-${PURPLE}#################################################################################################################${RESET}
+########################################################################################################${RESET}
 "
 
 # If program doesn't exist then abort testing.
@@ -381,7 +374,23 @@ run_full "5 800 200 200 7" 5 800 200 200 7
 run_full "5 300 60 60 15" 5 300 60 60 15
 run_full "10 500 100 100 50" 10 500 100 100 50
 run_full "11 900 150 90 20" 11 900 150 90 20
-
+run_full "100 410 200 200 20" 100 410 200 200 20
+run_full "199 600 200 100 10" 199 600 200 100 10
+run_full "5 600 150 150 10" 5 600 150 150 10
+run_full "5 800 200 200 10" 5 800 200 200 10
+run_full "4 410 200 200 10" 4 410 200 200 10
+run_full "100 800 200 200 10" 100 800 200 200 10
+run_full "105 800 200 200 10" 105 800 200 200 10
+run_full "200 800 200 200 10" 200 800 200 200 10
+run_full "4 800 200 200 10" 4 800 200 200 10
+run_full "2 170 60 60 10" 2 170 60 60 10
+run_full "2 150 60 60 10" 2 150 60 60 10
+run_full "3 190 60 60 10" 3 190 60 60 10
+run_full "4 405 200 200 10" 4 405 200 200 10
+run_full "4 130 60 60 10" 4 130 60 60 10
+run_full "100 410 200 200 10" 100 410 200 200 10
+run_full "100 130 60 60 10" 100 130 60 60 10
+run_full "101 180 60 60 10" 101 179 60 60 10
 rm -rf .julestestout .julesphilo1log .julesphilo2log
 
 # Run tests where a philosopher should die.

@@ -6,7 +6,7 @@
 /*   By: achowdhu <achowdhu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/15 21:31:32 by achowdhu          #+#    #+#             */
-/*   Updated: 2026/02/04 17:40:51 by achowdhu         ###   ########.fr       */
+/*   Updated: 2026/02/05 16:26:46 by achowdhu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,8 @@ static int	check_philo_death(t_data *data, int i)
 	{
 		data->someone_died = 1;
 		pthread_mutex_lock(&data->print_mutex);
-		printf("%lld %d died\n", time - data->start_time, data->philos[i].id);
+		printf("%lld %d died\n", time - data->start_time,
+			data->philos[i].id);
 		pthread_mutex_unlock(&data->print_mutex);
 		pthread_mutex_unlock(&data->death_mutex);
 		return (1);

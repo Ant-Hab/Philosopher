@@ -6,7 +6,7 @@
 /*   By: achowdhu <achowdhu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/15 21:31:49 by achowdhu          #+#    #+#             */
-/*   Updated: 2026/02/04 16:19:28 by achowdhu         ###   ########.fr       */
+/*   Updated: 2026/02/09 19:10:27 by achowdhu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,17 +68,17 @@ void	free_data(t_data *data)
 		return ;
 	if (data->forks)
 	{
-		i = 0;
-		while (i < data->n_philos)
-			pthread_mutex_destroy(&data->forks[i++]);
+		i = -1;
+		while (++i < data->n_philos)
+			pthread_mutex_destroy(&data->forks[i]);
 		free(data->forks);
 		data->forks = NULL;
 	}
 	if (data->philos)
 	{
-		i = 0;
-		while (i < data->n_philos)
-			pthread_mutex_destroy(&data->philos[i++].meal_mutex);
+		i = -1;
+		while (++i < data->n_philos)
+			pthread_mutex_destroy(&data->philos[i].meal_mutex);
 		free(data->philos);
 		data->philos = NULL;
 	}

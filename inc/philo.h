@@ -6,7 +6,7 @@
 /*   By: achowdhu <achowdhu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/15 21:30:14 by achowdhu          #+#    #+#             */
-/*   Updated: 2026/02/04 17:31:18 by achowdhu         ###   ########.fr       */
+/*   Updated: 2026/02/05 17:43:27 by achowdhu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <unistd.h>
+# include <string.h>
 # include <pthread.h>
 # include <sys/time.h>
 
